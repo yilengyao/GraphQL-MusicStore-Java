@@ -1,4 +1,4 @@
-package com.example.graphqlmusicstoremaven;
+package com.example.graphqlmusicstoremaven.graphql;
 
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsQuery;

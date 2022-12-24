@@ -1,4 +1,4 @@
-package com.example.graphqlmusicstoremaven;
+package com.example.graphqlmusicstoremaven.graphql;
 
 public class Show {
   private String title;
