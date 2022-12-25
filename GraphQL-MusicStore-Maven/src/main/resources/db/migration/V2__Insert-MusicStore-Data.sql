@@ -4,3 +4,9 @@ values ('Starting Out Slow', 'Stillness of the mind', 'fast', 126, 1, 12, '1977-
        ('American Reunion', 'The Slow Slowdown', 'medium', 90, 3, 1, '2022-11-15 19:09:57'),
        ('Machiavelli Rises', 'The Piano in The Night', 'slow', 82, 3, 0, '2022-12-03 19:09:57'),
        ('Fast and the Furious', 'Furious Abel Drum Solo', 'medium', 120, 4, 2, '2022-12-15 19:09:57');
+
+INSERT INTO composers (composer_id, composer_name)
+values (1, 'Abel Korzenoiski'),
+       (2, 'Fast Slow Stephanson'),
+       (3, 'Josh Talbot'),
+       (4, 'Medium Talbot');
