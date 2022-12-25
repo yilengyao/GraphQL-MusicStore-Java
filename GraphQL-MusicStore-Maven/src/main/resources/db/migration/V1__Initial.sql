@@ -1,13 +1,4 @@
-CREATE TABLE user (
-                      id BIGINT NOT NULL AUTO_INCREMENT,
-                      name varchar(255) not null,
-                      email varchar(255) not null,
-                      PRIMARY KEY(id)
-);
-
-insert into user (name, email) values ('john doe', 'doe@gmail.com');
-
-CREATE TABLE track (
+CREATE TABLE tracks (
     track_id BIGINT NOT NULL AUTO_INCREMENT,
     movie_title varchar(255) NOT NULL,
     track_title varchar(255) NOT NULL,
@@ -15,7 +6,7 @@ CREATE TABLE track (
     tempo_bpm INT NOT NULL,
     composer_id BIGINT,
     inventory INT,
-    created DATE,
+    created TIMESTAMP,
     PRIMARY KEY (track_id)
 );
 
@@ -32,7 +23,7 @@ CREATE TABLE instruments (
     PRIMARY KEY (instrument_id)
 );
 
-CREATE TABLE track_instruments (
+CREATE TABLE tracks_instruments (
     track_id BIGINT NOT NULL,
     instrument_id BIGINT NOT NULL,
     PRIMARY KEY (track_id, instrument_id)
