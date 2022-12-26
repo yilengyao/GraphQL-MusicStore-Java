@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(
         scanBasePackageClasses = {
-                com.example.graphqlmusicstoremaven.graphql.ApplicationSpecificSpringComponentScanMarker.class
+                com.example.graphqlmusicstoremaven.graphql.ApplicationSpecificSpringComponentScanMarker.class,
+                com.example.graphqlmusicstoremaven.configuration.ApplicationSpecificSpringComponentScanMarker.class
         })
 public class GraphQlMusicStoreMavenApplication {
 
