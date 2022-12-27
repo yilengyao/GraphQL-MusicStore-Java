@@ -21,7 +21,7 @@ CREATE TABLE tracks_composers (
     PRIMARY KEY (track_id, composer_id),
     FOREIGN KEY (track_id) REFERENCES tracks(track_id) ON DELETE CASCADE,
     FOREIGN KEY (composer_id) REFERENCES composers(composer_id) ON DELETE CASCADE
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;;
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE instruments (
     instrument_id BIGINT,

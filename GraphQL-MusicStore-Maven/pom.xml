@@ -15,14 +15,17 @@
     <description>GraphQL-MusicStore-Maven</description>
     <properties>
         <java.version>17</java.version>
-
-<!--        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
-<!--        <org.springframework.version>3.2.6.RELEASE</org.springframework.version>-->
-
-<!--        <db.url>jdbc:h2:mem:testdb</db.url>-->
-<!--        <db.username>kew</db.username>-->
         <jooq.version>3.17.0</jooq.version>
-
+        <flyway.version>8.2.0</flyway.version>
+        <spring.web.version>2.7.0</spring.web.version>
+        <dgs.version>5.5.0</dgs.version>
+        <mysql.connector.version>8.0.31</mysql.connector.version>
+        <database.url>jdbc:mysql://localhost:3306</database.url>
+        <database.schema>music_store</database.schema>
+        <database.user>user</database.user>
+        <database.password>password</database.password>
+        <package.name>com.example.graphqlmusicstoremaven</package.name>
+        <graphqlcodegen.maven.plugin.version></graphqlcodegen.maven.plugin.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -41,67 +44,56 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
+            <version>${spring.web.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.web.version}</version>
         </dependency>
         <dependency>
             <groupId>com.netflix.graphql.dgs</groupId>
             <artifactId>graphql-dgs-spring-boot-starter</artifactId>
+            <version>${dgs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.web.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>8.2.0</version>
-        </dependency>
+
+        <!-- Database access -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.connector.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.web.version}</version>
         </dependency>
-
-        <!-- Database access -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq</artifactId>
             <version>${jooq.version}</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq-meta</artifactId>
+            <version>${jooq.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.jooq</groupId>
             <artifactId>jooq-codegen</artifactId>
             <version>${jooq.version}</version>
         </dependency>
-
-        <!-- For improved logging, we'll be using log4j via slf4j to see what's going on during migration and code generation -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-
-        <!-- Testing -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
@@ -121,7 +113,7 @@
                     <schemaPaths>
                         <param>src/main/resources/schema/schema.graphqls</param>
                     </schemaPaths>
-                    <packageName>${project.groupId}.graphqlmusicstoremaven.generated</packageName>
+                    <packageName>${package.name}.graphql.generated</packageName>
                 </configuration>
             </plugin>
 
@@ -138,7 +130,7 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>8.3.0</version>
+                <version>${flyway.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -148,9 +140,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <url>jdbc:mysql://localhost:3306/music_store</url>
-                    <user>user</user>
-                    <password>password</password>
+                    <url>${database.url}/${database.schema}</url>
+                    <user>${database.user}</user>
+                    <password>${database.password}</password>
                     <locations>
                         <location>filesystem:src/main/resources/db/migration</location>
                     </locations>
@@ -171,19 +163,18 @@
 
                         <configuration>
                             <jdbc>
-                                <url>jdbc:mysql://localhost:3306/music_store</url>
-                                <user>user</user>
-                                <password>password</password>
+                                <url>${database.url}/${database.schema}</url>
+                                <user>${database.user}</user>
+                                <password>${database.password}</password>
                             </jdbc>
                             <generator>
                                 <database>
                                     <includes>.*</includes>
-                                    <excludes></excludes>
                                     <dateAsTimestamp>true</dateAsTimestamp>
-                                    <inputSchema>music_store</inputSchema>
+                                    <inputSchema>${database.schema}</inputSchema>
                                 </database>
                                 <target>
-                                    <packageName>com.example.graphqlmusicstoremaven.generator</packageName>
+                                    <packageName>${package.name}.jooq.generator</packageName>
                                     <directory>target/generated-sources/jooq</directory>
                                 </target>
                             </generator>
