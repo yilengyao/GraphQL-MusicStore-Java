@@ -1,5 +1,6 @@
 package com.example.graphqlmusicstoremaven.graphql;
 
+import com.example.graphqlmusicstoremaven.graphql.Show;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;

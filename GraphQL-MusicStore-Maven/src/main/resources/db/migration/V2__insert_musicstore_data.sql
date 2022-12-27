@@ -26,7 +26,7 @@ VALUES (101, 'Brass', 'Alpine horn'),
        (105, 'Keyboard', 'Piano'),
        (106, 'Percussion', 'Drums');
 
-INSERT INTO  tracks_instruments(track_id, instrument_id)
+INSERT INTO tracks_instruments(track_id, instrument_id)
 VALUES (1, 101),
        (2, 104),
        (3, 102),
