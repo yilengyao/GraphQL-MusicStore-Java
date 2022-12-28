@@ -1,0 +1,34 @@
+scalar DateTime
+
+enum TempoName {
+    FAST
+    MEDIUM
+    SLOW
+}
+
+type Track {
+    track_id: ID!
+    movie_title: String!
+    track_title: String!
+    tempo_name: TempoName!
+    tempo_bpm: Int!
+    composer: Composer!
+    instruments: [Instrument!]!
+    in_library: Boolean!
+    created: DateTime!
+}
+
+type Instrument {
+    instrument_id: ID!
+    instrument_group: String!
+    instrument_name: String!
+}
+
+type Composer {
+    composer_id: ID!
+    composer_name: String!
+}
+
+type Query {
+    allTracks: [Track!]!
+}

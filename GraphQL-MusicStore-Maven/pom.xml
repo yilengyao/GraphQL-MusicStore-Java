@@ -41,6 +41,12 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.web.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
@@ -48,19 +54,21 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring.web.version}</version>
+            <scope>test</scope>
         </dependency>
+
+        <!-- GraphQL -->
         <dependency>
             <groupId>com.netflix.graphql.dgs</groupId>
             <artifactId>graphql-dgs-spring-boot-starter</artifactId>
             <version>${dgs.version}</version>
         </dependency>
+        <!-- for implementing GraphQL Scalars such as DateTimeScalar -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring.web.version}</version>
-            <scope>test</scope>
+            <groupId>com.netflix.graphql.dgs</groupId>
+            <artifactId>graphql-dgs-extended-scalars</artifactId>
         </dependency>
 
         <!-- Database access -->
@@ -98,6 +106,7 @@
 
     <build>
         <plugins>
+            <!-- To generated GraphQL types in generated-sources folder -->
             <plugin>
                 <groupId>io.github.deweyjose</groupId>
                 <artifactId>graphqlcodegen-maven-plugin</artifactId>
@@ -111,12 +120,33 @@
                 </executions>
                 <configuration>
                     <schemaPaths>
-                        <param>src/main/resources/schema/schema.graphqls</param>
+                        <param>src/main/resources/schema/musicstore.graphqls</param>
+                        <param>src/main/resources/schema/shows.graphqls</param>
                     </schemaPaths>
                     <packageName>${package.name}.graphql.generated</packageName>
                 </configuration>
             </plugin>
 
+            <!-- Add the generated GraphQL types in generated-sources folder to the classpath -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- To run mvn spring-boot:run -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -127,6 +157,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
 
+            <!-- To run flyway migration, executing queries in db/migration -->
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
@@ -149,6 +180,7 @@
                 </configuration>
             </plugin>
 
+            <!-- To generated JOOQ record types in generated-sources folder -->
             <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
