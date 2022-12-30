@@ -9,7 +9,7 @@ import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 @Configuration
-public class FlywayConfig {
+public class FlywayConfiguration {
 
     @Resource
     private DataSource dataSource;

@@ -6,14 +6,19 @@ enum TempoName {
     SLOW
 }
 
+input TempoRange {
+    min_tempo: Int!
+    max_tempo: Int!
+}
+
 type Track {
     track_id: ID!
     movie_title: String!
     track_title: String!
     tempo_name: TempoName!
     tempo_bpm: Int!
-    composer: Composer!
-    instruments: [Instrument!]!
+    composer: [Composer]!
+    instruments: [Instrument]!
     in_library: Boolean!
     created: DateTime!
 }
@@ -30,5 +35,14 @@ type Composer {
 }
 
 type Query {
-    allTracks: [Track!]!
+    allTracks(
+        tempo_name: TempoName
+        movie_title: String
+        composer_name: String
+        instrument_group: String
+        instrument_name: String
+        tempo_range: TempoRange
+        in_library: Boolean
+        after: DateTime
+    ): [Track!]!
 }
