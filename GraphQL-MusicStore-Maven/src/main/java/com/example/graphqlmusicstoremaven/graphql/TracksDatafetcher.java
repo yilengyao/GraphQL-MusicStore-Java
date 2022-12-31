@@ -1,10 +1,13 @@
 package com.example.graphqlmusicstoremaven.graphql;
 
+import com.example.graphqlmusicstoremaven.graphql.generated.types.CreateTrackInput;
+import com.example.graphqlmusicstoremaven.graphql.generated.types.CreateTrackOutput;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.TempoName;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.TempoRange;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.Track;
 import com.example.graphqlmusicstoremaven.repository.TrackStore;
 import com.netflix.graphql.dgs.DgsComponent;
+import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.DgsQuery;
 import com.netflix.graphql.dgs.InputArgument;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,5 +37,12 @@ public class TracksDatafetcher {
             @InputArgument("in_library") final Optional<Boolean> inLibrary,
             @InputArgument("after") final Optional<OffsetDateTime> after) {
         return trackStore.allTracks(tempoName, movieTitle, composerName, instrumentGroup, instrumentName, tempoRange, inLibrary, after);
+    }
+
+    @DgsMutation
+    public CreateTrackOutput createTrack(
+            @InputArgument("input") final CreateTrackInput input) {
+
+        return trackStore.createTrack(input);
     }
 }

@@ -1,22 +1,30 @@
 package com.example.graphqlmusicstoremaven.repository.jooq;
 
 import com.example.graphqlmusicstoremaven.graphql.generated.types.Composer;
+import com.example.graphqlmusicstoremaven.graphql.generated.types.CreateTrackInput;
+import com.example.graphqlmusicstoremaven.graphql.generated.types.CreateTrackOutput;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.Instrument;
+import com.example.graphqlmusicstoremaven.graphql.generated.types.InstrumentInput;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.TempoName;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.TempoRange;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.Track;
 import com.example.graphqlmusicstoremaven.repository.TrackStore;
 import graphql.com.google.common.collect.Sets;
+import org.jooq.BatchBindStep;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Result;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -89,13 +97,119 @@ public class JooqTrackStore implements TrackStore {
         return deserializeRecord(result);
     }
 
+    @Override
+    public CreateTrackOutput createTrack(CreateTrackInput input) {
+        Set<Long> composerIds = input.getComposer() == null ?
+                Collections.emptySet() : fetchComposerIdsFromComposerNames(input.getComposer().getComposer_names());
+        Set<Long> instrumentIds = input.getInstruments() == null ?
+                Collections.emptySet() : fetchInstrumentIdsFromInstrumentInput(input.getInstruments().getInstruments());
+
+        var trackId = insertTrackIntoTrackTable(input);
+
+        if (!composerIds.isEmpty()) {
+                insertIntoTracksComposersTable(trackId, composerIds);
+        }
+        if (!instrumentIds.isEmpty()) {
+            insertIntoTracksInstrumentTable(trackId, instrumentIds);
+        }
+        return CreateTrackOutput.newBuilder().id(trackId.toString()).build();
+    }
+
+    private Set<Long> fetchComposerIdsFromComposerNames(List<String> usernames) {
+        Set<Long> composerIds = new HashSet<>();
+        usernames
+                .forEach(
+                    composerName -> {
+                        var composerId = context.select(COMPOSERS.COMPOSER_ID)
+                                .from(COMPOSERS)
+                                .where(COMPOSERS.COMPOSER_NAME.eq(composerName))
+                                .fetchOne();
+                        if (composerId == null) {
+                            throw new IllegalArgumentException("Composer with name " + composerName + " doesn't exist.");
+                        }
+                        composerIds.add(composerId.get(COMPOSERS.COMPOSER_ID));
+                    }
+        );
+        return composerIds;
+    }
+
+    private Set<Long> fetchInstrumentIdsFromInstrumentInput(List<InstrumentInput> instrumentInputs) {
+        Set<Long> instrumentIds = new HashSet<>();
+        instrumentInputs
+                .forEach(
+                        instrumentInput -> {
+                            var instrumentId = context.select(INSTRUMENTS.INSTRUMENT_ID)
+                                    .from(INSTRUMENTS)
+                                    .where(INSTRUMENTS.INSTRUMENT_GROUP.eq(instrumentInput.getInstrument_group()))
+                                    .and(INSTRUMENTS.INSTRUMENT_NAME.eq(instrumentInput.getInstrument_name()))
+                                    .fetchOne();
+
+                            if (instrumentId == null) {
+                                throw new IllegalArgumentException("Instrument with name " +
+                                        instrumentInput.getInstrument_name() + " and group" +
+                                        instrumentInput.getInstrument_group() + " doesn't exist.");
+                            }
+                            instrumentIds.add(instrumentId.get(INSTRUMENTS.INSTRUMENT_ID));
+                        }
+                );
+        return instrumentIds;
+    }
+
+    private Long insertTrackIntoTrackTable(CreateTrackInput input) {
+        var result = context.insertInto(TRACKS,
+                    TRACKS.MOVIE_TITLE,
+                    TRACKS.TRACK_TITLE,
+                    TRACKS.TEMPO_NAME,
+                    TRACKS.TEMPO_BPM,
+                    TRACKS.INVENTORY,
+                    TRACKS.CREATED)
+                .values(
+                        input.getMovie_title(),
+                        input.getTrack_title(),
+                        com.example.graphqlmusicstoremaven.jooq.generator.enums.TracksTempoName.valueOf(
+                                input.getTempo_name().name().toLowerCase()),
+                        input.getTempo_bpm(),
+                        input.getInventory(),
+                        LocalDateTime.now())
+                .returningResult(TRACKS.TRACK_ID)
+                .fetchOne();
+        return result.get(TRACKS.TRACK_ID);
+    }
+
+    private void insertIntoTracksComposersTable(Long trackId, Set<Long> composerIds){
+        BatchBindStep batch = context.batch(context.insertInto(TRACKS_COMPOSERS,
+                        TRACKS_COMPOSERS.TRACK_ID,
+                        TRACKS_COMPOSERS.COMPOSER_ID)
+                .values((Long) null, null));
+
+        composerIds.forEach(
+                composerId -> {
+                    batch.bind(trackId, composerId);
+                }
+        );
+        batch.execute();
+    }
+
+    private void insertIntoTracksInstrumentTable(Long trackId, Set<Long> instrumentIds) {
+        BatchBindStep batch = context.batch(context.insertInto(TRACKS_INSTRUMENTS,
+                TRACKS_INSTRUMENTS.TRACK_ID,
+                TRACKS_INSTRUMENTS.INSTRUMENT_ID)
+                .values((Long) null, null));
+
+        instrumentIds.forEach(
+                instrumentId -> {
+                    batch.bind(trackId, instrumentId);
+                }
+        );
+        batch.execute();
+    }
+
     private List<Track> deserializeRecord(Result<org.jooq.Record> tracksResult) {
         Map<Long, Track> tracksMap = new HashMap<>();
         Map<Long, Set<Long>> tracksComposersMap = new HashMap<>();
         Map<Long, String> composersMap = new HashMap<>();
         Map<Long, Set<Long>> tracksInstrumentsMap = new HashMap<>();
         Map<Long, Instrument> instrumentsMap = new HashMap<>();
-
         for (org.jooq.Record record: tracksResult) {
             Long trackId = record.get(TRACKS.TRACK_ID);
             String movieTitle = record.get(TRACKS.MOVIE_TITLE);
@@ -142,7 +256,7 @@ public class JooqTrackStore implements TrackStore {
                 tracksInstrumentsMap.put(trackId, Sets.newHashSet(instrumentId));
             }
 
-            if (!instrumentsMap.containsKey(instrumentId)) {
+            if (instrumentId!=null && !instrumentsMap.containsKey(instrumentId)) {
                 instrumentsMap.put(
                         instrumentId,
                         Instrument.newBuilder()
@@ -158,6 +272,7 @@ public class JooqTrackStore implements TrackStore {
                     var composerIds = tracksComposersMap.get(trackId);
                     var composers = composerIds
                                                     .stream()
+                                                    .filter(id -> id != null)
                                                     .map(id -> Composer.newBuilder()
                                                             .composer_id(id.toString())
                                                             .composer_name(composersMap.get(id))

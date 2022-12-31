@@ -23,8 +23,27 @@ type Track {
     created: DateTime!
 }
 
+input CreateTrackInput {
+    movie_title: String!
+    track_title: String!
+    tempo_name: TempoName!
+    tempo_bpm: Int!
+    composer: CreateComposersInput
+    instruments: CreateInstrumentInput
+    inventory: Int!
+}
+
 type Instrument {
     instrument_id: ID!
+    instrument_group: String!
+    instrument_name: String!
+}
+
+input CreateInstrumentInput {
+    instruments: [InstrumentInput!]!
+}
+
+input InstrumentInput {
     instrument_group: String!
     instrument_name: String!
 }
@@ -32,6 +51,10 @@ type Instrument {
 type Composer {
     composer_id: ID!
     composer_name: String!
+}
+
+input CreateComposersInput {
+    composer_names: [String!]!
 }
 
 type Query {
@@ -45,4 +68,12 @@ type Query {
         in_library: Boolean
         after: DateTime
     ): [Track!]!
+}
+
+type CreateTrackOutput {
+    id: ID
+}
+
+type Mutation {
+    createTrack(input: CreateTrackInput!): CreateTrackOutput
 }

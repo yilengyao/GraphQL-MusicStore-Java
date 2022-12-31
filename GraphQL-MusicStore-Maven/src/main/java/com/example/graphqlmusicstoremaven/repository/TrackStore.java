@@ -1,5 +1,7 @@
 package com.example.graphqlmusicstoremaven.repository;
 
+import com.example.graphqlmusicstoremaven.graphql.generated.types.CreateTrackInput;
+import com.example.graphqlmusicstoremaven.graphql.generated.types.CreateTrackOutput;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.TempoName;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.TempoRange;
 import com.example.graphqlmusicstoremaven.graphql.generated.types.Track;
@@ -18,4 +20,7 @@ public interface TrackStore {
             final Optional<TempoRange> tempoRange,
             final Optional<Boolean> inLibrary,
             final Optional<OffsetDateTime> after);
+
+    public CreateTrackOutput createTrack(final CreateTrackInput input);
+
 }

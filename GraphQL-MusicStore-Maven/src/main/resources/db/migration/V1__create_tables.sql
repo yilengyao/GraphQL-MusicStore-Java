@@ -10,7 +10,7 @@ CREATE TABLE tracks (
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE composers (
-    composer_id BIGINT NOT NULL,
+    composer_id BIGINT NOT NULL AUTO_INCREMENT,
     composer_name varchar(255) NOT NULL,
     PRIMARY KEY (composer_id)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8;
