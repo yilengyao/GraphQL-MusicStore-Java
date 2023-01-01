@@ -1,0 +1,79 @@
+scalar DateTime
+
+enum TempoName {
+    FAST
+    MEDIUM
+    SLOW
+}
+
+input TempoRange {
+    min_tempo: Int!
+    max_tempo: Int!
+}
+
+type Track {
+    track_id: ID!
+    movie_title: String!
+    track_title: String!
+    tempo_name: TempoName!
+    tempo_bpm: Int!
+    composer: [Composer]!
+    instruments: [Instrument]!
+    in_library: Boolean!
+    created: DateTime!
+}
+
+input CreateTrackInput {
+    movie_title: String!
+    track_title: String!
+    tempo_name: TempoName!
+    tempo_bpm: Int!
+    composer: CreateComposersInput
+    instruments: CreateInstrumentInput
+    inventory: Int!
+}
+
+type Instrument {
+    instrument_id: ID!
+    instrument_group: String!
+    instrument_name: String!
+}
+
+input CreateInstrumentInput {
+    instruments: [InstrumentInput!]!
+}
+
+input InstrumentInput {
+    instrument_group: String!
+    instrument_name: String!
+}
+
+type Composer {
+    composer_id: ID!
+    composer_name: String!
+}
+
+input CreateComposersInput {
+    composer_names: [String!]!
+}
+
+type Query {
+    allTracks(
+        tempo_name: TempoName
+        movie_title: String
+        composer_name: String
+        instrument_group: String
+        instrument_name: String
+        tempo_range: TempoRange
+        in_library: Boolean
+        after: DateTime
+    ): [Track!]!
+}
+
+type CreateTrackOutput {
+    id: ID
+}
+
+type Mutation {
+    createTrack(input: CreateTrackInput!): CreateTrackOutput
+}
