@@ -158,8 +158,7 @@ in pom.xml add the following plugins
                  </executions>
              </plugin>
 ```
-Remember in [Getting Started with DGS using Maven
-](https://www.linkedin.com/pulse/getting-started-dgs-using-maven-yi-leng-yao) we added the plugin for code generation.
+Remember in [Getting Started with DGS using Maven](https://www.linkedin.com/pulse/getting-started-dgs-using-maven-yi-leng-yao) we added the plugin for code generation.
 There generated types is generated in the target/generated-sources folder. The above plugin allows our application to import the generated GraphQL types in our application.
 
 ![generated-types](../media/generated-graphql-types.png)
